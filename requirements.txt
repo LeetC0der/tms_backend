@@ -1,0 +1,6 @@
+Flask
+python-dotenv
+flask_jwt_extended
+flask_sqlalchemy
+flask_migrate
+psycopg2
