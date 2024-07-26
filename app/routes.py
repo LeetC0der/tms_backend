@@ -40,9 +40,9 @@ def sign_up():
         username = req_json['username']
         password = req_json['password']
         if User.query.filter_by(email=email).first():
-            return jsonify({"message": f"Email: {email} already exists, please try a different email."}), 409
+            return jsonify({"message": f"Email Id exists, Try a different email."}), 409
         if User.query.filter_by(username=username).first():
-            return jsonify({"message": f"Username: {username} already exists, please try a different username."}), 409
+            return jsonify({"message": f"Username exists, Try a different username."}), 409
         validation_result = validate(password)
         if validation_result != 'Valid':
             return jsonify({'password': validation_result}), 400
