@@ -45,12 +45,12 @@ def sign_up():
             return jsonify({"message": f"Username exists, Try a different username."}), 409
         validation_result = validate(password)
         if validation_result != 'Valid':
-            return jsonify({'password': validation_result}), 400
+            return jsonify({'message': validation_result}), 400
         # Create a new user with email, username, and password
         new_user = User(email=email, username=username, password=password)
         db.session.add(new_user)
         db.session.commit()
-        return jsonify({'success': 'User created successfully'}), 201
+        return jsonify({'message': 'User created successfully'}), 201
     except Exception as error:
         return jsonify({'error': str(error)}), 500
 
@@ -63,8 +63,8 @@ def refresh():
         new_access_token = create_access_token(identity=current_user)
         return jsonify(access_token=new_access_token), 200
     except JWTDecodeError as e:
-        return jsonify({"msg": "Error decoding token", "error": str(e)}), 401
+        return jsonify({"message": "Error decoding token", "error": str(e)}), 401
     except Unauthorized as e:
-        return jsonify({"msg": "Incorrect or expired refresh token", "error": str(e)}), 401
+        return jsonify({"message": "Incorrect or expired refresh token", "error": str(e)}), 401
     except Exception as e:
-        return jsonify({"msg": "An error occurred", "error": str(e)}), 500
+        return jsonify({"message": "An error occurred", "error": str(e)}), 500
