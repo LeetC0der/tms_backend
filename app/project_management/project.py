@@ -21,7 +21,7 @@ def create_project():
     user_id = request.args.get('user_id')
     project = Project.query.filter_by(title=req_json['title']).first()
     if project:
-        return jsonify({'message': 'Project with this title already exists'}), 400
+        return jsonify({'message': 'Project title already exists, Try new one.'}), 400
     new_project = Project(user_id=user_id, title=req_json['title'], created_at=datetime.datetime.now())
     db.session.add(new_project)
     db.session.commit()
