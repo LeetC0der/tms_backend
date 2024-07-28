@@ -4,21 +4,13 @@ from ..decorator import auth_required
 
 task_bp = Blueprint('task', __name__)
 
-@task_bp.route('/', methods=['POST', 'GET', 'PUT'])
+@task_bp.route('/create_task', methods=['POST'])
 @auth_required
-def task_manager():
+def create_task():
     req_json = request.get_json()
     if not req_json:
         return jsonify({'error': 'Request Body cannot be empty'}), 400
-    if request.method == 'POST':
-        return add_task(req_json)
-    elif request.method == 'GET':
-        return get_tasks(req_json)
-    elif request.method == 'PUT':
-        task_id = request.args.get('task_id')
-        if not task_id:
-            return jsonify({'error': 'Task ID is required'}), 400
-        return update_task(req_json, task_id)
+    return add_task(req_json)
 
 def add_task(json):
     try:
@@ -39,8 +31,10 @@ def add_task(json):
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
-def get_tasks(json):
-    project_id = json.get('project_id')
+@task_bp.route('/get_tasks', methods=['GET'])
+@auth_required
+def get_tasks():
+    project_id = request.args.get('project_id')
     if not project_id:
         return jsonify({'error': 'Project ID is required'}), 400
     try:
@@ -56,11 +50,20 @@ def get_tasks(json):
             'due_date': task.due_date,
             'status': task.status
         } for task in all_tasks]
-        return jsonify(tasks=tasks_json), 200
+        return jsonify({'message': tasks_json}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
-def update_task(json, task_id):
+@task_bp.route('/update_task', methods=['PUT'])
+@auth_required
+def update_task():
+    req_json = request.get_json()
+    task_id = request.args.get('task_id')
+    if not task_id:
+        return jsonify({'error': 'Task ID is required'}), 400
+    return update_task_helper(req_json, task_id)
+
+def update_task_helper(json, task_id):
     task_to_update = AddTask.query.get(task_id)
     if not task_to_update:
         return jsonify({'error': 'Task not found'}), 404
@@ -75,11 +78,9 @@ def update_task(json, task_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
-@task_bp.route('/remove_task', methods=['DELETE'])
+@task_bp.route('/delete_task', methods=['DELETE'])
 @auth_required
 def delete_task():
-    if request.method != 'DELETE':
-        return jsonify({'error': 'Method not allowed'}), 405
     task_id = request.args.get('task_id')
     if not task_id:
         return jsonify({'error': 'Task ID not provided'}), 400
@@ -92,3 +93,8 @@ def delete_task():
         return jsonify({'message': 'Task deleted successfully!'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+
+@task_bp.route('/new', methods=['GET'])
+@auth_required
+def new():
+    return jsonify({'message': 'Task Management System'})
